@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SystemLoop — Systems Thinking Problem Definer</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-card: #1a1a1a;
+  --bg-input: #1e1e1e;
+  --bg-hover: #252525;
+  --border: #2a2a2a;
+  --border-focus: #444;
+  --text: #fafafa;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-soft: rgba(59, 130, 246, 0.1);
+  --success: #22c55e;
+  --success-soft: rgba(34, 197, 94, 0.1);
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.1);
+  --bubble-assistant: #1e1e1e;
+  --bubble-user: #1e3a5f;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+}
+
+[data-theme="light"] {
+  --bg: #fafafa;
+  --bg-secondary: #f5f5f5;
+  --bg-card: #ffffff;
+  --bg-input: #f0f0f0;
+  --bg-hover: #e8e8e8;
+  --border: #e5e5e5;
+  --border-focus: #ccc;
+  --text: #171717;
+  --text-secondary: #525252;
+  --text-muted: #a3a3a3;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.08);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.08);
+  --bubble-assistant: #f0f0f0;
+  --bubble-user: #dbeafe;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  transition: background var(--transition), color var(--transition);
+  line-height: 1.5;
+}
+
+/* Layout */
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 100px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 8px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+}
+
+.logo h1 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.logo span {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.btn:hover { background: var(--bg-hover); border-color: var(--border-focus); }
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+.btn-ghost {
+  border: none;
+  background: none;
+  padding: 8px;
+}
+.btn-ghost:hover { background: var(--bg-hover); }
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+/* Progress Bar */
+.progress-container {
+  margin-bottom: 24px;
+}
+
+.progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+}
+
+.progress-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--transition);
+  position: relative;
+}
+
+.progress-step.active .step-dot {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.progress-step.completed .step-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.step-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  text-align: center;
+  transition: color var(--transition);
+}
+
+.progress-step.active .step-label { color: var(--accent); font-weight: 500; }
+.progress-step.completed .step-label { color: var(--text-secondary); }
+
+.progress-line {
+  position: absolute;
+  top: 14px;
+  left: 14%;
+  right: 14%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 1px;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: all var(--transition);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Input Area */
+.input-section { margin-bottom: 16px; }
+
+textarea, input[type="text"] {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  resize: vertical;
+  transition: all var(--transition);
+  line-height: 1.5;
+}
+
+textarea:focus, input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+textarea::placeholder, input[type="text"]::placeholder {
+  color: var(--text-muted);
+}
+
+/* Chat Area */
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 4px 0;
+  scroll-behavior: smooth;
+}
+
+.chat-area::-webkit-scrollbar { width: 4px; }
+.chat-area::-webkit-scrollbar-track { background: transparent; }
+.chat-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.message {
+  display: flex;
+  gap: 10px;
+  animation: messageIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 85%;
+}
+
+.message-assistant { align-self: flex-start; }
+.message-user { align-self: flex-end; flex-direction: row-reverse; }
+
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.message-assistant .message-avatar {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.message-user .message-avatar {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.message-assistant .message-bubble {
+  background: var(--bubble-assistant);
+  border-bottom-left-radius: 4px;
+}
+
+.message-user .message-bubble {
+  background: var(--bubble-user);
+  border-bottom-right-radius: 4px;
+}
+
+/* Chat Input */
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.chat-input-row input {
+  flex: 1;
+}
+
+/* Loop Display */
+.loop-card {
+  margin-bottom: 16px;
+}
+
+.loop-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.loop-r .loop-label {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.loop-b .loop-label {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.loop-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.loop-node {
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.loop-arrow {
+  color: var(--text-muted);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Problem Statement */
+.statement-box {
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.statement-box em {
+  color: var(--accent);
+  font-style: normal;
+  font-weight: 500;
+}
+
+/* Actions Row */
+.actions-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* Example Problems */
+.examples-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.example-btn {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-sans);
+  line-height: 1.4;
+}
+
+.example-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-focus);
+  color: var(--text);
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Sections */
+.section-hidden {
+  display: none;
+}
+
+.section-visible {
+  display: block;
+  animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Typing indicator */
+.typing-dots {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  animation: typingBounce 1.2s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .app { padding: 16px 14px 100px; }
+  .header h1 { font-size: 17px; }
+  .message { max-width: 92%; }
+  .card { padding: 18px; }
+  .step-label { font-size: 9px; }
+}
+
+/* PDF export helper */
+@media print {
+  body { background: #fff; color: #000; }
+  .header-actions, .chat-input-row, .btn, .progress-container { display: none !important; }
+  .card { break-inside: avoid; border-color: #ddd; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">&#x21BB;</div>
+      <h1>SystemLoop <span>v1.0</span></h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-icon" id="themeToggle" title="Toggle theme">&#x263E;</button>
+      <button class="btn" id="resetBtn" title="Reset">&#x21BA; Reset</button>
+    </div>
+  </header>
+
+  <!-- Progress -->
+  <div class="progress-container" id="progressSection">
+    <div class="progress-steps">
+      <div class="progress-line"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-step" data-step="0"><div class="step-dot">1</div><div class="step-label">Problem</div></div>
+      <div class="progress-step" data-step="1"><div class="step-dot">2</div><div class="step-label">Domain</div></div>
+      <div class="progress-step" data-step="2"><div class="step-dot">3</div><div class="step-label">Channel</div></div>
+      <div class="progress-step" data-step="3"><div class="step-dot">4</div><div class="step-label">Audience</div></div>
+      <div class="progress-step" data-step="4"><div class="step-dot">5</div><div class="step-label">Metric</div></div>
+      <div class="progress-step" data-step="5"><div class="step-dot">6</div><div class="step-label">Target</div></div>
+      <div class="progress-step" data-step="6"><div class="step-dot">7</div><div class="step-label">Timeline</div></div>
+    </div>
+  </div>
+
+  <!-- Step 0: Problem Input -->
+  <div id="inputSection" class="section-visible">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--accent-soft);color:var(--accent);">&#x270E;</div>
+        <div>
+          <div class="card-title">Describe your retail problem</div>
+          <div class="card-subtitle">Start with a vague statement — we'll sharpen it together</div>
+        </div>
+      </div>
+      <textarea id="problemInput" rows="3" placeholder="e.g. Customers are unhappy with our online shopping experience"></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <button class="btn" id="randomBtn">&#x1F3B2; Random example</button>
+        <button class="btn btn-primary" id="startBtn">Start analysis &#x2192;</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--warning-soft);color:var(--warning);">&#x2728;</div>
+        <div><div class="card-title">Example problems</div></div>
+      </div>
+      <div class="examples-grid" id="examplesGrid"></div>
+    </div>
+  </div>
+
+  <!-- Chat Section -->
+  <div id="chatSection" class="section-hidden">
+    <div class="card" style="padding-bottom:16px;">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--accent-soft);color:var(--accent);">&#x1F4AC;</div>
+        <div>
+          <div class="card-title">Guided Analysis</div>
+          <div class="card-subtitle">Answer each question to build your systems model</div>
+        </div>
+      </div>
+      <div class="chat-area" id="chatArea"></div>
+      <div class="chat-input-row" id="chatInputRow">
+        <input type="text" id="chatInput" placeholder="Type your answer..." autocomplete="off">
+        <button class="btn btn-primary" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div id="resultsSection" class="section-hidden">
+    <!-- Reinforcing Loop -->
+    <div class="card loop-card loop-r">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--warning-soft);color:var(--warning);">&#x1F504;</div>
+        <div>
+          <div class="card-title">Reinforcing Loop (R)</div>
+          <div class="card-subtitle">Self-amplifying cycle — the problem feeds itself</div>
+        </div>
+      </div>
+      <div class="loop-label">&#x26A0; R Loop</div>
+      <div class="loop-diagram" id="rLoop"></div>
+    </div>
+
+    <!-- Balancing Loop -->
+    <div class="card loop-card loop-b">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--success-soft);color:var(--success);">&#x2696;</div>
+        <div>
+          <div class="card-title">Balancing Loop (B)</div>
+          <div class="card-subtitle">Corrective cycle — the intervention stabilizes the system</div>
+        </div>
+      </div>
+      <div class="loop-label">&#x2705; B Loop</div>
+      <div class="loop-diagram" id="bLoop"></div>
+    </div>
+
+    <!-- Problem Statement -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--accent-soft);color:var(--accent);">&#x1F4CB;</div>
+        <div>
+          <div class="card-title">Structured Problem Statement</div>
+          <div class="card-subtitle">Ready for stakeholder review</div>
+        </div>
+      </div>
+      <div class="statement-box" id="statementBox"></div>
+      <div class="actions-row">
+        <button class="btn" id="copyBtn">&#x1F4CB; Copy statement</button>
+        <button class="btn" id="exportBtn">&#x1F4C4; Export PDF</button>
+        <button class="btn" id="restartBtn">&#x21BA; Start over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // ── State ──
+  const state = {
+    problem: '',
+    step: -1, // -1 = input phase
+    answers: { domain: '', channel: '', users: '', current: '', target: '', timeframe: '' },
+  };
+
+  const answerKeys = ['domain', 'channel', 'users', 'current', 'target', 'timeframe'];
+
+  const questions = [
+    "Which area is this mainly about? For example: e-commerce, in-store experience, inventory management, product quality, or logistics.",
+    "Which channel is this happening in? For example: website, mobile app, physical store, social media, or marketplace.",
+    "Who is most affected by this problem? For example: online shoppers, in-store customers, staff, or suppliers.",
+    "Do you have any current metrics? For example: 12% return rate, 2.1% conversion rate, NPS score of 35, or 45-second average page load.",
+    "What is your target or desired outcome? For example: reduce return rate to 5%, increase conversion to 4%, or NPS above 50.",
+    "By when do you want to achieve this? For example: Q3 2026, within 6 months, or by end of year."
+  ];
+
+  const exampleProblems = [
+    "Customers are complaining about slow delivery times for online orders",
+    "Our return rate for shoes bought online is significantly higher than industry average",
+    "In-store staff can't keep up with inventory checks during peak hours",
+    "Customer satisfaction scores have been declining since we redesigned the checkout flow",
+    "We're losing repeat customers to competitors despite running loyalty promotions",
+    "Product pages on mobile have high bounce rates and low add-to-cart rates",
+  ];
+
+  // ── Loop templates based on domain keywords ──
+  const loopTemplates = {
+    'e-commerce': {
+      r: ['Poor {channel} experience', '{users} frustration', 'Cart abandonment', 'Lost revenue', 'Rushed fixes', 'More bugs', 'Poor {channel} experience'],
+      b: ['Improve {channel} UX', 'Fewer friction points', 'Higher conversion', '{users} satisfaction', 'Positive reviews', 'More traffic', 'Stable growth']
+    },
+    'delivery': {
+      r: ['Slow delivery', '{users} complaints', 'Negative reviews', 'Fewer orders', 'Budget cuts to logistics', 'Slower delivery', 'Slow delivery'],
+      b: ['Optimize fulfillment', 'Faster shipping', '{users} satisfaction', 'Repeat purchases', 'Logistics investment', 'Reliable delivery', 'Sustained loyalty']
+    },
+    'return': {
+      r: ['High return rate', 'Increased costs', 'Margin pressure', 'Reduced product investment', 'Worse product quality', 'More returns', 'High return rate'],
+      b: ['Better product info on {channel}', 'Informed purchase decisions', 'Fewer returns', 'Cost savings', 'Invest in UX & sizing', 'Confident {users}', 'Stable return rate']
+    },
+    'inventory': {
+      r: ['Stock inaccuracies', 'Overselling on {channel}', '{users} frustration', 'Cancellation surge', 'Manual overrides', 'More errors', 'Stock inaccuracies'],
+      b: ['Real-time inventory sync', 'Accurate availability', 'Fewer cancellations', '{users} trust', 'Operational efficiency', 'Data-driven restocking', 'Balanced supply']
+    },
+    'satisfaction': {
+      r: ['Declining satisfaction', '{users} churn', 'Revenue drop', 'Cost cutting', 'Worse experience on {channel}', 'More complaints', 'Declining satisfaction'],
+      b: ['Listen to {users} feedback', 'Targeted {channel} improvements', 'Higher CSAT/NPS', 'Retention growth', 'Revenue stability', 'Reinvest in experience', 'Sustained satisfaction']
+    },
+    'default': {
+      r: ['Problem occurrence', '{users} dissatisfaction', 'Declining engagement on {channel}', 'Revenue impact', 'Resource constraints', 'Insufficient improvements', 'Problem recurrence'],
+      b: ['Root cause analysis', 'Targeted intervention on {channel}', 'Improved {users} experience', 'Positive metrics shift', 'Stakeholder confidence', 'Continued investment', 'Systemic improvement']
+    }
+  };
+
+  // ── DOM refs ──
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => document.querySelectorAll(sel);
+
+  const els = {
+    problemInput: $('#problemInput'),
+    startBtn: $('#startBtn'),
+    randomBtn: $('#randomBtn'),
+    inputSection: $('#inputSection'),
+    chatSection: $('#chatSection'),
+    chatArea: $('#chatArea'),
+    chatInput: $('#chatInput'),
+    sendBtn: $('#sendBtn'),
+    chatInputRow: $('#chatInputRow'),
+    resultsSection: $('#resultsSection'),
+    rLoop: $('#rLoop'),
+    bLoop: $('#bLoop'),
+    statementBox: $('#statementBox'),
+    copyBtn: $('#copyBtn'),
+    exportBtn: $('#exportBtn'),
+    resetBtn: $('#resetBtn'),
+    restartBtn: $('#restartBtn'),
+    themeToggle: $('#themeToggle'),
+    progressFill: $('#progressFill'),
+    examplesGrid: $('#examplesGrid'),
+    toast: $('#toast'),
+  };
+
+  // ── Theme ──
+  function initTheme() {
+    const saved = localStorage.getItem('systemloop-theme');
+    if (saved) document.documentElement.setAttribute('data-theme', saved);
+    updateThemeIcon();
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('systemloop-theme', next);
+    updateThemeIcon();
+  }
+
+  function updateThemeIcon() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    els.themeToggle.innerHTML = isDark ? '&#x2600;' : '&#x263E;';
+    els.themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+
+  // ── Toast ──
+  function showToast(msg) {
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    setTimeout(() => els.toast.classList.remove('show'), 2200);
+  }
+
+  // ── Progress ──
+  function updateProgress() {
+    const total = 7; // 0=problem + 6 questions
+    const current = state.step + 1; // step -1 → 0, step 0 → 1, etc.
+    const pct = Math.min((current / (total - 1)) * 100, 100);
+    els.progressFill.style.width = pct + '%';
+
+    $$('.progress-step').forEach((el) => {
+      const s = parseInt(el.dataset.step);
+      el.classList.remove('active', 'completed');
+      if (s < current) el.classList.add('completed');
+      else if (s === current) el.classList.add('active');
+    });
+  }
+
+  // ── Examples ──
+  function renderExamples() {
+    els.examplesGrid.innerHTML = exampleProblems.map(p =>
+      `<button class="example-btn">${p}</button>`
+    ).join('');
+
+    els.examplesGrid.querySelectorAll('.example-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        els.problemInput.value = btn.textContent;
+        els.problemInput.focus();
+      });
+    });
+  }
+
+  // ── Chat Messages ──
+  function addMessage(text, role) {
+    const msg = document.createElement('div');
+    msg.className = `message message-${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.innerHTML = role === 'assistant' ? '&#x2699;' : '&#x1F464;';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.textContent = text;
+
+    msg.appendChild(avatar);
+    msg.appendChild(bubble);
+    els.chatArea.appendChild(msg);
+    els.chatArea.scrollTop = els.chatArea.scrollHeight;
+  }
+
+  function addTypingIndicator() {
+    const msg = document.createElement('div');
+    msg.className = 'message message-assistant';
+    msg.id = 'typingMsg';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.innerHTML = '&#x2699;';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble';
+    bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+    msg.appendChild(avatar);
+    msg.appendChild(bubble);
+    els.chatArea.appendChild(msg);
+    els.chatArea.scrollTop = els.chatArea.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const t = $('#typingMsg');
+    if (t) t.remove();
+  }
+
+  // ── Flow ──
+  function startChat() {
+    const problem = els.problemInput.value.trim();
+    if (!problem) {
+      showToast('Please describe a problem first');
+      els.problemInput.focus();
+      return;
+    }
+
+    state.problem = problem;
+    state.step = 0;
+
+    els.inputSection.className = 'section-hidden';
+    els.chatSection.className = 'section-visible';
+    els.resultsSection.className = 'section-hidden';
+
+    updateProgress();
+
+    // Show problem acknowledgment then first question
+    addMessage(`"${state.problem}"`, 'user');
+
+    addTypingIndicator();
+    setTimeout(() => {
+      removeTypingIndicator();
+      addMessage(`Great — let's break this down systematically. I'll ask you 6 quick questions to build a systems model.`, 'assistant');
+
+      addTypingIndicator();
+      setTimeout(() => {
+        removeTypingIndicator();
+        addMessage(questions[0], 'assistant');
+        els.chatInput.focus();
+      }, 600);
+    }, 800);
+  }
+
+  function handleAnswer() {
+    const answer = els.chatInput.value.trim();
+    if (!answer) return;
+
+    const key = answerKeys[state.step];
+    state.answers[key] = answer;
+
+    addMessage(answer, 'user');
+    els.chatInput.value = '';
+
+    state.step++;
+    updateProgress();
+
+    if (state.step >= questions.length) {
+      // All done
+      els.chatInputRow.style.display = 'none';
+      addTypingIndicator();
+      setTimeout(() => {
+        removeTypingIndicator();
+        addMessage("All inputs collected. Generating your systems thinking model...", 'assistant');
+        setTimeout(() => generateResults(), 600);
+      }, 800);
+    } else {
+      addTypingIndicator();
+      setTimeout(() => {
+        removeTypingIndicator();
+        addMessage(questions[state.step], 'assistant');
+        els.chatInput.focus();
+      }, 700);
+    }
+  }
+
+  // ── Loop Generation ──
+  function detectTemplate() {
+    const text = (state.problem + ' ' + state.answers.domain).toLowerCase();
+    if (text.includes('delivery') || text.includes('shipping') || text.includes('logistics')) return 'delivery';
+    if (text.includes('return')) return 'return';
+    if (text.includes('inventory') || text.includes('stock')) return 'inventory';
+    if (text.includes('satisfaction') || text.includes('nps') || text.includes('csat') || text.includes('loyalty') || text.includes('repeat')) return 'satisfaction';
+    if (text.includes('e-commerce') || text.includes('online') || text.includes('checkout') || text.includes('website') || text.includes('cart') || text.includes('conversion') || text.includes('bounce')) return 'e-commerce';
+    return 'default';
+  }
+
+  function fillTemplate(nodes) {
+    return nodes.map(n =>
+      n.replace('{channel}', state.answers.channel || 'channel')
+       .replace('{users}', state.answers.users || 'customer')
+    );
+  }
+
+  function renderLoop(container, nodes) {
+    container.innerHTML = '';
+    nodes.forEach((node, i) => {
+      const span = document.createElement('span');
+      span.className = 'loop-node';
+      span.textContent = node;
+      container.appendChild(span);
+
+      if (i < nodes.length - 1) {
+        const arrow = document.createElement('span');
+        arrow.className = 'loop-arrow';
+        arrow.innerHTML = '&#x2192;';
+        container.appendChild(arrow);
+      }
+    });
+  }
+
+  function generateResults() {
+    const template = loopTemplates[detectTemplate()];
+    const rNodes = fillTemplate(template.r);
+    const bNodes = fillTemplate(template.b);
+
+    renderLoop(els.rLoop, rNodes);
+    renderLoop(els.bLoop, bNodes);
+
+    // Problem statement
+    const a = state.answers;
+    const statement =
+      `In <em>${a.channel || 'the current channel'}</em>, ` +
+      `<em>${a.users || 'customers'}</em> currently experience ` +
+      `<em>${a.current || 'suboptimal performance'}</em>. ` +
+      `We aim to improve this to <em>${a.target || 'the desired target'}</em> ` +
+      `within <em>${a.timeframe || 'a defined timeframe'}</em>, ` +
+      `while maintaining system stability across <em>${a.domain || 'the affected domain'}</em>.`;
+
+    els.statementBox.innerHTML = statement;
+
+    els.resultsSection.className = 'section-visible';
+    els.resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Copy ──
+  function copyStatement() {
+    const text = els.statementBox.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Copied to clipboard');
+    }).catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Copied to clipboard');
+    });
+  }
+
+  // ── Export PDF ──
+  function exportPDF() {
+    window.print();
+  }
+
+  // ── Reset ──
+  function resetApp() {
+    state.problem = '';
+    state.step = -1;
+    state.answers = { domain: '', channel: '', users: '', current: '', target: '', timeframe: '' };
+
+    els.problemInput.value = '';
+    els.chatArea.innerHTML = '';
+    els.chatInput.value = '';
+    els.chatInputRow.style.display = 'flex';
+
+    els.inputSection.className = 'section-visible';
+    els.chatSection.className = 'section-hidden';
+    els.resultsSection.className = 'section-hidden';
+
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Random Example ──
+  function randomExample() {
+    const rand = exampleProblems[Math.floor(Math.random() * exampleProblems.length)];
+    els.problemInput.value = rand;
+    els.problemInput.focus();
+  }
+
+  // ── Event Listeners ──
+  els.startBtn.addEventListener('click', startChat);
+  els.sendBtn.addEventListener('click', handleAnswer);
+  els.chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAnswer(); });
+  els.problemInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); startChat(); } });
+  els.copyBtn.addEventListener('click', copyStatement);
+  els.exportBtn.addEventListener('click', exportPDF);
+  els.resetBtn.addEventListener('click', resetApp);
+  els.restartBtn.addEventListener('click', resetApp);
+  els.themeToggle.addEventListener('click', toggleTheme);
+  els.randomBtn.addEventListener('click', randomExample);
+
+  // ── Init ──
+  initTheme();
+  renderExamples();
+  updateProgress();
+})();
+</script>
+</body>
+</html>
