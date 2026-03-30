@@ -576,6 +576,26 @@ textarea::placeholder, input[type="text"]::placeholder {
   .step-label { font-size: 9px; }
 }
 
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 24px 16px;
+  margin-top: 32px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.site-footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.site-footer a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 /* PDF export helper */
 @media print {
   body { background: #fff; color: #000; }
@@ -703,6 +723,11 @@ textarea::placeholder, input[type="text"]::placeholder {
     </div>
   </div>
 </div>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <a href="https://www.tertiarycourses.com.sg/" target="_blank" rel="noopener noreferrer">Tertiary Infotech Academy Pte Ltd</a>
+</footer>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
