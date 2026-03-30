@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SystemLoop — Systems Thinking Problem Definer</title>
+<title>System Thinking — Systems Thinking Problem Definer</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -611,7 +611,7 @@ textarea::placeholder, input[type="text"]::placeholder {
   <header class="header">
     <div class="logo">
       <div class="logo-icon">&#x21BB;</div>
-      <h1>SystemLoop <span>v1.0</span></h1>
+      <h1>System Thinking <span>v1.0</span></h1>
     </div>
     <div class="header-actions">
       <button class="btn btn-ghost btn-icon" id="themeToggle" title="Toggle theme">&#x263E;</button>
@@ -639,11 +639,11 @@ textarea::placeholder, input[type="text"]::placeholder {
       <div class="card-header">
         <div class="card-icon" style="background:var(--accent-soft);color:var(--accent);">&#x270E;</div>
         <div>
-          <div class="card-title">Describe your retail problem</div>
+          <div class="card-title">Describe your problem</div>
           <div class="card-subtitle">Start with a vague statement — we'll sharpen it together</div>
         </div>
       </div>
-      <textarea id="problemInput" rows="3" placeholder="e.g. Customers are unhappy with our online shopping experience"></textarea>
+      <textarea id="problemInput" rows="3" placeholder="e.g. Our team is struggling with low productivity and missed deadlines"></textarea>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px;">
         <button class="btn" id="randomBtn">&#x1F3B2; Random example</button>
         <button class="btn btn-primary" id="startBtn">Start analysis &#x2192;</button>
@@ -679,29 +679,29 @@ textarea::placeholder, input[type="text"]::placeholder {
 
   <!-- Results Section -->
   <div id="resultsSection" class="section-hidden">
-    <!-- Reinforcing Loop -->
+    <!-- Reinforcing (Positive Feedback) Loop -->
     <div class="card loop-card loop-r">
       <div class="card-header">
         <div class="card-icon" style="background:var(--warning-soft);color:var(--warning);">&#x1F504;</div>
         <div>
-          <div class="card-title">Reinforcing Loop (R)</div>
-          <div class="card-subtitle">Self-amplifying cycle — the problem feeds itself</div>
+          <div class="card-title">Reinforcing Loop (R+)</div>
+          <div class="card-subtitle">Positive feedback — self-amplifying cycle that grows the effect</div>
         </div>
       </div>
-      <div class="loop-label">&#x26A0; R Loop</div>
+      <div class="loop-label">&#x26A0; R+ Positive Feedback</div>
       <div class="loop-diagram" id="rLoop"></div>
     </div>
 
-    <!-- Balancing Loop -->
+    <!-- Balancing (Negative Feedback) Loop -->
     <div class="card loop-card loop-b">
       <div class="card-header">
         <div class="card-icon" style="background:var(--success-soft);color:var(--success);">&#x2696;</div>
         <div>
-          <div class="card-title">Balancing Loop (B)</div>
-          <div class="card-subtitle">Corrective cycle — the intervention stabilizes the system</div>
+          <div class="card-title">Balancing Loop (B-)</div>
+          <div class="card-subtitle">Negative feedback — corrective cycle that stabilizes the system</div>
         </div>
       </div>
-      <div class="loop-label">&#x2705; B Loop</div>
+      <div class="loop-label">&#x2705; B- Negative Feedback</div>
       <div class="loop-diagram" id="bLoop"></div>
     </div>
 
@@ -744,47 +744,47 @@ textarea::placeholder, input[type="text"]::placeholder {
   const answerKeys = ['domain', 'channel', 'users', 'current', 'target', 'timeframe'];
 
   const questions = [
-    "Which area is this mainly about? For example: e-commerce, in-store experience, inventory management, product quality, or logistics.",
-    "Which channel is this happening in? For example: website, mobile app, physical store, social media, or marketplace.",
-    "Who is most affected by this problem? For example: online shoppers, in-store customers, staff, or suppliers.",
-    "Do you have any current metrics? For example: 12% return rate, 2.1% conversion rate, NPS score of 35, or 45-second average page load.",
-    "What is your target or desired outcome? For example: reduce return rate to 5%, increase conversion to 4%, or NPS above 50.",
+    "Which domain or area is this mainly about? For example: operations, customer experience, product development, HR, finance, or technology.",
+    "Which channel or context is this happening in? For example: online platform, in-person, internal process, communication tool, or supply chain.",
+    "Who is most affected by this problem? For example: customers, employees, managers, partners, or end users.",
+    "Do you have any current metrics? For example: 30% employee turnover, 65% customer satisfaction, 4-hour response time, or 15% error rate.",
+    "What is your target or desired outcome? For example: reduce turnover to 15%, improve satisfaction to 85%, or cut response time to 1 hour.",
     "By when do you want to achieve this? For example: Q3 2026, within 6 months, or by end of year."
   ];
 
   const exampleProblems = [
-    "Customers are complaining about slow delivery times for online orders",
-    "Our return rate for shoes bought online is significantly higher than industry average",
-    "In-store staff can't keep up with inventory checks during peak hours",
-    "Customer satisfaction scores have been declining since we redesigned the checkout flow",
-    "We're losing repeat customers to competitors despite running loyalty promotions",
-    "Product pages on mobile have high bounce rates and low add-to-cart rates",
+    "Employee turnover is increasing despite recent salary adjustments",
+    "Customer support response times have doubled over the past quarter",
+    "Cross-team communication breakdowns are causing project delays",
+    "Our product quality has been declining since we scaled up production",
+    "Student engagement drops significantly after the first month of the course",
+    "Hospital patient wait times keep growing despite adding more staff",
   ];
 
   // ── Loop templates based on domain keywords ──
   const loopTemplates = {
-    'e-commerce': {
-      r: ['Poor {channel} experience', '{users} frustration', 'Cart abandonment', 'Lost revenue', 'Rushed fixes', 'More bugs', 'Poor {channel} experience'],
-      b: ['Improve {channel} UX', 'Fewer friction points', 'Higher conversion', '{users} satisfaction', 'Positive reviews', 'More traffic', 'Stable growth']
+    'turnover': {
+      r: ['High {users} turnover', 'Knowledge loss', 'Increased workload', 'Burnout & stress', 'Lower morale', 'More resignations', 'High {users} turnover'],
+      b: ['Improve working conditions', 'Better {users} support via {channel}', 'Higher engagement', 'Knowledge retention', 'Stable teams', 'Stronger culture', 'Sustainable retention']
     },
-    'delivery': {
-      r: ['Slow delivery', '{users} complaints', 'Negative reviews', 'Fewer orders', 'Budget cuts to logistics', 'Slower delivery', 'Slow delivery'],
-      b: ['Optimize fulfillment', 'Faster shipping', '{users} satisfaction', 'Repeat purchases', 'Logistics investment', 'Reliable delivery', 'Sustained loyalty']
+    'quality': {
+      r: ['Declining quality', '{users} complaints', 'Reputation damage', 'Lost trust', 'Reduced investment', 'Shortcuts in {channel}', 'Declining quality'],
+      b: ['Implement quality controls', 'Consistent standards in {channel}', 'Fewer defects', '{users} confidence', 'Positive reputation', 'Reinvest in quality', 'Sustained excellence']
     },
-    'return': {
-      r: ['High return rate', 'Increased costs', 'Margin pressure', 'Reduced product investment', 'Worse product quality', 'More returns', 'High return rate'],
-      b: ['Better product info on {channel}', 'Informed purchase decisions', 'Fewer returns', 'Cost savings', 'Invest in UX & sizing', 'Confident {users}', 'Stable return rate']
+    'communication': {
+      r: ['Poor communication', 'Misalignment across {channel}', 'Duplicated effort', 'Delays & rework', '{users} frustration', 'Avoidance of collaboration', 'Poor communication'],
+      b: ['Structured communication via {channel}', 'Clear expectations', 'Better coordination', 'Faster delivery', '{users} satisfaction', 'Trust & transparency', 'Effective collaboration']
     },
-    'inventory': {
-      r: ['Stock inaccuracies', 'Overselling on {channel}', '{users} frustration', 'Cancellation surge', 'Manual overrides', 'More errors', 'Stock inaccuracies'],
-      b: ['Real-time inventory sync', 'Accurate availability', 'Fewer cancellations', '{users} trust', 'Operational efficiency', 'Data-driven restocking', 'Balanced supply']
+    'performance': {
+      r: ['Low performance', 'Missed targets', 'Pressure & blame', '{users} disengagement', 'Reduced effort', 'Declining results', 'Low performance'],
+      b: ['Set clear goals via {channel}', 'Provide feedback & support', '{users} skill growth', 'Improved output', 'Recognition & reward', 'Higher motivation', 'Sustained performance']
     },
     'satisfaction': {
       r: ['Declining satisfaction', '{users} churn', 'Revenue drop', 'Cost cutting', 'Worse experience on {channel}', 'More complaints', 'Declining satisfaction'],
-      b: ['Listen to {users} feedback', 'Targeted {channel} improvements', 'Higher CSAT/NPS', 'Retention growth', 'Revenue stability', 'Reinvest in experience', 'Sustained satisfaction']
+      b: ['Listen to {users} feedback', 'Targeted {channel} improvements', 'Higher satisfaction scores', 'Retention growth', 'Revenue stability', 'Reinvest in experience', 'Sustained satisfaction']
     },
     'default': {
-      r: ['Problem occurrence', '{users} dissatisfaction', 'Declining engagement on {channel}', 'Revenue impact', 'Resource constraints', 'Insufficient improvements', 'Problem recurrence'],
+      r: ['Problem occurrence', '{users} dissatisfaction', 'Declining engagement on {channel}', 'Negative impact', 'Resource constraints', 'Insufficient improvements', 'Problem recurrence'],
       b: ['Root cause analysis', 'Targeted intervention on {channel}', 'Improved {users} experience', 'Positive metrics shift', 'Stakeholder confidence', 'Continued investment', 'Systemic improvement']
     }
   };
@@ -987,18 +987,18 @@ textarea::placeholder, input[type="text"]::placeholder {
   // ── Loop Generation ──
   function detectTemplate() {
     const text = (state.problem + ' ' + state.answers.domain).toLowerCase();
-    if (text.includes('delivery') || text.includes('shipping') || text.includes('logistics')) return 'delivery';
-    if (text.includes('return')) return 'return';
-    if (text.includes('inventory') || text.includes('stock')) return 'inventory';
-    if (text.includes('satisfaction') || text.includes('nps') || text.includes('csat') || text.includes('loyalty') || text.includes('repeat')) return 'satisfaction';
-    if (text.includes('e-commerce') || text.includes('online') || text.includes('checkout') || text.includes('website') || text.includes('cart') || text.includes('conversion') || text.includes('bounce')) return 'e-commerce';
+    if (text.includes('turnover') || text.includes('retention') || text.includes('resign') || text.includes('attrition') || text.includes('hiring')) return 'turnover';
+    if (text.includes('quality') || text.includes('defect') || text.includes('error') || text.includes('bug') || text.includes('standard')) return 'quality';
+    if (text.includes('communication') || text.includes('collaboration') || text.includes('silos') || text.includes('alignment') || text.includes('coordination')) return 'communication';
+    if (text.includes('performance') || text.includes('productivity') || text.includes('efficiency') || text.includes('output') || text.includes('deadline')) return 'performance';
+    if (text.includes('satisfaction') || text.includes('nps') || text.includes('csat') || text.includes('engagement') || text.includes('morale')) return 'satisfaction';
     return 'default';
   }
 
   function fillTemplate(nodes) {
     return nodes.map(n =>
       n.replace('{channel}', state.answers.channel || 'channel')
-       .replace('{users}', state.answers.users || 'customer')
+       .replace('{users}', state.answers.users || 'stakeholder')
     );
   }
 
@@ -1031,7 +1031,7 @@ textarea::placeholder, input[type="text"]::placeholder {
     const a = state.answers;
     const statement =
       `In <em>${a.channel || 'the current channel'}</em>, ` +
-      `<em>${a.users || 'customers'}</em> currently experience ` +
+      `<em>${a.users || 'stakeholders'}</em> currently experience ` +
       `<em>${a.current || 'suboptimal performance'}</em>. ` +
       `We aim to improve this to <em>${a.target || 'the desired target'}</em> ` +
       `within <em>${a.timeframe || 'a defined timeframe'}</em>, ` +
