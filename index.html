@@ -471,6 +471,78 @@ textarea::placeholder, input[type="text"]::placeholder {
   font-weight: 500;
 }
 
+/* Levers & Strategies */
+.levers-list, .strategies-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.levers-list li, .strategies-list li {
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  border-left: 3px solid var(--accent);
+}
+.levers-list li:last-child, .strategies-list li:last-child { margin-bottom: 0; }
+.levers-list li strong, .strategies-list li strong {
+  color: var(--accent);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+.strategies-list li { border-left-color: var(--success); }
+.strategies-list li strong { color: var(--success); }
+
+.ai-loading {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.ai-loading .spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.api-key-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.api-key-row input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
+.api-key-row input::placeholder { color: var(--text-muted); }
+.api-key-row .btn { flex-shrink: 0; }
+.api-key-status {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.api-key-status.saved { color: var(--success); }
+
 /* Actions Row */
 .actions-row {
   display: flex;
@@ -633,6 +705,22 @@ textarea::placeholder, input[type="text"]::placeholder {
     </div>
   </div>
 
+  <!-- API Key Config -->
+  <div class="card" style="margin-bottom:0;">
+    <div class="card-header">
+      <div class="card-icon" style="background:var(--accent-soft);color:var(--accent);">&#x1F511;</div>
+      <div>
+        <div class="card-title">OpenAI API Key</div>
+        <div class="card-subtitle">Optional — enables AI-generated levers &amp; strategies</div>
+      </div>
+    </div>
+    <div class="api-key-row">
+      <input type="password" id="apiKeyInput" placeholder="sk-..." autocomplete="off">
+      <button class="btn" id="saveKeyBtn">Save key</button>
+    </div>
+    <div class="api-key-status" id="apiKeyStatus"></div>
+  </div>
+
   <!-- Step 0: Problem Input -->
   <div id="inputSection" class="section-visible">
     <div class="card">
@@ -715,6 +803,34 @@ textarea::placeholder, input[type="text"]::placeholder {
         </div>
       </div>
       <div class="statement-box" id="statementBox"></div>
+    </div>
+
+    <!-- Levers -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--warning-soft);color:var(--warning);">&#x1F3AF;</div>
+        <div>
+          <div class="card-title">Leverage Points</div>
+          <div class="card-subtitle">Key intervention points to break the reinforcing loop</div>
+        </div>
+      </div>
+      <ul class="levers-list" id="leversList"></ul>
+    </div>
+
+    <!-- Strategies -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:var(--success-soft);color:var(--success);">&#x1F4A1;</div>
+        <div>
+          <div class="card-title">Recommended Strategies</div>
+          <div class="card-subtitle">Actionable strategies to strengthen the balancing loop</div>
+        </div>
+      </div>
+      <ul class="strategies-list" id="strategiesList"></ul>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
       <div class="actions-row">
         <button class="btn" id="copyBtn">&#x1F4CB; Copy statement</button>
         <button class="btn" id="exportBtn">&#x1F4C4; Export PDF</button>
@@ -789,6 +905,82 @@ textarea::placeholder, input[type="text"]::placeholder {
     }
   };
 
+  // ── Fallback levers & strategies (used when no API key) ──
+  const fallbackInsights = {
+    'turnover': {
+      levers: [
+        { title: 'Workload distribution', desc: 'Rebalance workloads to prevent burnout — the primary driver of the reinforcing loop.' },
+        { title: 'Onboarding & knowledge transfer', desc: 'Reduce knowledge loss when people leave by documenting processes and pairing new hires.' },
+        { title: 'Manager effectiveness', desc: 'Train managers on retention-focused leadership — direct supervisors are the #1 factor in turnover.' },
+      ],
+      strategies: [
+        { title: 'Stay interviews', desc: 'Conduct regular stay interviews (not just exit interviews) to identify flight risks early.' },
+        { title: 'Career development paths', desc: 'Create visible growth paths via {channel} so {users} see a future in the organization.' },
+        { title: 'Flexible working arrangements', desc: 'Offer flexibility in how, when, and where work gets done to improve retention.' },
+      ]
+    },
+    'quality': {
+      levers: [
+        { title: 'Quality feedback loops', desc: 'Shorten the time between defect creation and detection — long delays amplify the reinforcing loop.' },
+        { title: 'Process standardization', desc: 'Establish clear quality standards in {channel} to reduce variability and shortcuts.' },
+        { title: 'Root cause investment', desc: 'Allocate resources to fix root causes instead of symptoms — breaking the cost-cutting spiral.' },
+      ],
+      strategies: [
+        { title: 'Quality gates at each stage', desc: 'Add checkpoints so defects are caught early rather than reaching {users}.' },
+        { title: 'Continuous improvement cadence', desc: 'Run regular retrospectives focused on quality metrics and systemic fixes.' },
+        { title: 'Training & skill development', desc: 'Invest in {users} and team capability to prevent quality issues at the source.' },
+      ]
+    },
+    'communication': {
+      levers: [
+        { title: 'Information flow structure', desc: 'Redesign how information moves across {channel} — unclear ownership causes duplication and delays.' },
+        { title: 'Decision rights clarity', desc: 'Define who decides what — ambiguity drives avoidance and misalignment.' },
+        { title: 'Cross-functional touchpoints', desc: 'Create regular sync points between teams to prevent silos from forming.' },
+      ],
+      strategies: [
+        { title: 'Shared goals & OKRs', desc: 'Align teams around shared outcomes so collaboration is incentivized, not optional.' },
+        { title: 'Communication protocols', desc: 'Establish clear norms for async vs sync communication via {channel}.' },
+        { title: 'Transparency dashboards', desc: 'Make progress and blockers visible to all {users} to reduce information asymmetry.' },
+      ]
+    },
+    'performance': {
+      levers: [
+        { title: 'Goal clarity', desc: 'Ambiguous goals feed the pressure-blame cycle — clear targets break it.' },
+        { title: 'Feedback frequency', desc: 'Shift from annual reviews to frequent coaching via {channel} to catch issues early.' },
+        { title: 'Psychological safety', desc: 'When {users} fear blame, they disengage — safety enables honest problem-solving.' },
+      ],
+      strategies: [
+        { title: 'Skills gap analysis', desc: 'Identify specific capability gaps and provide targeted training for {users}.' },
+        { title: 'Recognition systems', desc: 'Reward effort and improvement, not just outcomes — this sustains the balancing loop.' },
+        { title: 'Resource reallocation', desc: 'Ensure teams have adequate resources via {channel} before demanding higher output.' },
+      ]
+    },
+    'satisfaction': {
+      levers: [
+        { title: 'Feedback collection', desc: 'If you don\'t hear from {users}, you can\'t fix what matters — close the feedback loop.' },
+        { title: 'Experience bottlenecks', desc: 'Identify the top 3 friction points in {channel} that drive the most dissatisfaction.' },
+        { title: 'Expectation management', desc: 'Mismatched expectations amplify dissatisfaction — align promises with delivery.' },
+      ],
+      strategies: [
+        { title: 'Voice of the customer program', desc: 'Systematically collect, analyze, and act on {users} feedback via {channel}.' },
+        { title: 'Quick wins + systemic fixes', desc: 'Deliver visible improvements fast while working on deeper structural changes.' },
+        { title: 'Closed-loop communication', desc: 'Tell {users} what you heard, what you did, and what changed — this builds trust.' },
+      ]
+    },
+    'default': {
+      levers: [
+        { title: 'Feedback delay', desc: 'The longer it takes to detect the problem, the harder it is to correct — shorten feedback loops.' },
+        { title: 'Resource allocation', desc: 'Under-investment sustains the reinforcing loop — redirect resources to the root cause.' },
+        { title: 'Stakeholder alignment', desc: 'Misaligned incentives between {users} and decision-makers prevent effective intervention.' },
+      ],
+      strategies: [
+        { title: 'Systems mapping workshop', desc: 'Bring stakeholders together to map the full system and identify high-leverage interventions.' },
+        { title: 'Measure & iterate', desc: 'Define leading indicators (not just lagging ones) and review them via {channel} regularly.' },
+        { title: 'Pilot & scale', desc: 'Test interventions on a small scale with {users} before rolling out broadly.' },
+      ]
+    }
+  };
+
   // ── DOM refs ──
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
@@ -807,6 +999,8 @@ textarea::placeholder, input[type="text"]::placeholder {
     rLoop: $('#rLoop'),
     bLoop: $('#bLoop'),
     statementBox: $('#statementBox'),
+    leversList: $('#leversList'),
+    strategiesList: $('#strategiesList'),
     copyBtn: $('#copyBtn'),
     exportBtn: $('#exportBtn'),
     resetBtn: $('#resetBtn'),
@@ -815,6 +1009,9 @@ textarea::placeholder, input[type="text"]::placeholder {
     progressFill: $('#progressFill'),
     examplesGrid: $('#examplesGrid'),
     toast: $('#toast'),
+    apiKeyInput: $('#apiKeyInput'),
+    saveKeyBtn: $('#saveKeyBtn'),
+    apiKeyStatus: $('#apiKeyStatus'),
   };
 
   // ── Theme ──
@@ -1019,8 +1216,90 @@ textarea::placeholder, input[type="text"]::placeholder {
     });
   }
 
-  function generateResults() {
-    const template = loopTemplates[detectTemplate()];
+  function fillInsightText(text) {
+    return text
+      .replace(/\{channel\}/g, state.answers.channel || 'the current channel')
+      .replace(/\{users\}/g, state.answers.users || 'stakeholders');
+  }
+
+  function renderInsightList(container, items) {
+    container.innerHTML = '';
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${item.title}</strong>${item.desc}`;
+      container.appendChild(li);
+    });
+  }
+
+  function getApiKey() {
+    return localStorage.getItem('systemloop-api-key') || '';
+  }
+
+  async function generateAIInsights(problem, answers, rNodes, bNodes) {
+    const apiKey = getApiKey();
+    if (!apiKey) return null;
+
+    const prompt = `You are a systems thinking expert. Given the following problem analysis, generate leverage points and recommended strategies.
+
+Problem: ${problem}
+Domain: ${answers.domain}
+Channel/Context: ${answers.channel}
+Affected stakeholders: ${answers.users}
+Current metric: ${answers.current}
+Target: ${answers.target}
+Timeframe: ${answers.timeframe}
+
+Reinforcing loop (positive feedback): ${rNodes.join(' → ')}
+Balancing loop (negative feedback): ${bNodes.join(' → ')}
+
+Return a JSON object with this exact structure (no markdown, no code fences):
+{
+  "levers": [
+    {"title": "short title", "desc": "1-2 sentence explanation of why this is a leverage point"},
+    {"title": "short title", "desc": "1-2 sentence explanation"},
+    {"title": "short title", "desc": "1-2 sentence explanation"}
+  ],
+  "strategies": [
+    {"title": "short title", "desc": "1-2 sentence actionable strategy"},
+    {"title": "short title", "desc": "1-2 sentence actionable strategy"},
+    {"title": "short title", "desc": "1-2 sentence actionable strategy"}
+  ]
+}`;
+
+    try {
+      const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_tokens: 800,
+        }),
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        console.error('OpenAI API error:', err);
+        return null;
+      }
+
+      const data = await resp.json();
+      const content = data.choices?.[0]?.message?.content || '';
+      const cleaned = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      return JSON.parse(cleaned);
+    } catch (e) {
+      console.error('AI generation failed:', e);
+      return null;
+    }
+  }
+
+  async function generateResults() {
+    const templateKey = detectTemplate();
+    const template = loopTemplates[templateKey];
     const rNodes = fillTemplate(template.r);
     const bNodes = fillTemplate(template.b);
 
@@ -1039,13 +1318,39 @@ textarea::placeholder, input[type="text"]::placeholder {
 
     els.statementBox.innerHTML = statement;
 
+    // Show results section with loading state for levers/strategies
     els.resultsSection.className = 'section-visible';
     els.resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const apiKey = getApiKey();
+    if (apiKey) {
+      // Show loading state
+      els.leversList.innerHTML = '<div class="ai-loading"><span class="spinner"></span>Generating AI insights...</div>';
+      els.strategiesList.innerHTML = '<div class="ai-loading"><span class="spinner"></span>Generating AI strategies...</div>';
+
+      const aiResult = await generateAIInsights(state.problem, a, rNodes, bNodes);
+      if (aiResult) {
+        renderInsightList(els.leversList, aiResult.levers);
+        renderInsightList(els.strategiesList, aiResult.strategies);
+        return;
+      }
+      // Fall through to fallback if AI fails
+    }
+
+    // Fallback: use template-based insights
+    const insights = fallbackInsights[templateKey] || fallbackInsights['default'];
+    const filledLevers = insights.levers.map(l => ({ title: l.title, desc: fillInsightText(l.desc) }));
+    const filledStrategies = insights.strategies.map(s => ({ title: s.title, desc: fillInsightText(s.desc) }));
+    renderInsightList(els.leversList, filledLevers);
+    renderInsightList(els.strategiesList, filledStrategies);
   }
 
   // ── Copy ──
   function copyStatement() {
-    const text = els.statementBox.innerText;
+    const statement = els.statementBox.innerText;
+    const levers = Array.from(els.leversList.querySelectorAll('li')).map(li => '- ' + li.innerText).join('\n');
+    const strategies = Array.from(els.strategiesList.querySelectorAll('li')).map(li => '- ' + li.innerText).join('\n');
+    const text = `PROBLEM STATEMENT\n${statement}\n\nLEVERAGE POINTS\n${levers}\n\nRECOMMENDED STRATEGIES\n${strategies}`;
     navigator.clipboard.writeText(text).then(() => {
       showToast('Copied to clipboard');
     }).catch(() => {
@@ -1075,6 +1380,8 @@ textarea::placeholder, input[type="text"]::placeholder {
     els.chatArea.innerHTML = '';
     els.chatInput.value = '';
     els.chatInputRow.style.display = 'flex';
+    els.leversList.innerHTML = '';
+    els.strategiesList.innerHTML = '';
 
     els.inputSection.className = 'section-visible';
     els.chatSection.className = 'section-hidden';
@@ -1103,8 +1410,33 @@ textarea::placeholder, input[type="text"]::placeholder {
   els.themeToggle.addEventListener('click', toggleTheme);
   els.randomBtn.addEventListener('click', randomExample);
 
+  // ── API Key ──
+  els.saveKeyBtn.addEventListener('click', () => {
+    const key = els.apiKeyInput.value.trim();
+    if (key) {
+      localStorage.setItem('systemloop-api-key', key);
+      els.apiKeyStatus.textContent = 'API key saved (stored in browser only)';
+      els.apiKeyStatus.className = 'api-key-status saved';
+      els.apiKeyInput.value = '';
+    } else {
+      localStorage.removeItem('systemloop-api-key');
+      els.apiKeyStatus.textContent = 'API key removed';
+      els.apiKeyStatus.className = 'api-key-status';
+    }
+  });
+
+  function initApiKey() {
+    const saved = getApiKey();
+    if (saved) {
+      els.apiKeyInput.placeholder = 'sk-...saved (enter new key to update)';
+      els.apiKeyStatus.textContent = 'API key loaded — AI insights enabled';
+      els.apiKeyStatus.className = 'api-key-status saved';
+    }
+  }
+
   // ── Init ──
   initTheme();
+  initApiKey();
   renderExamples();
   updateProgress();
 })();
